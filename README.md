@@ -12,7 +12,4 @@ A full-stack application designed to manage food items efficiently. Users can vi
 * Add new food items to the system.
 * Delete existing items.
 
-## How to Run Locally
-### Prerequisites
-* Node.js installed on your machine.
-* MySQL Server installed and running.
+
