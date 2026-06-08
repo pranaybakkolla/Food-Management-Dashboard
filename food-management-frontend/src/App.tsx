@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 
 function App() {
+  
   // Navigation state to switch between views
   const [currentPage, setCurrentPage] = useState('dashboard');
   // Stores the list of food items from the database
@@ -11,7 +12,6 @@ function App() {
   const [category, setCategory] = useState('');
   const [quantity, setQuantity] = useState('');
   // Track IDs for editing or managing specific items
-  const [editId, setEditId] = useState<number | null>(null);
   const [selectedItem, setSelectedItem] = useState<any | null>(null);
   const [editItem, setEditItem] = useState<any | null>(null);
 
@@ -37,20 +37,13 @@ function App() {
       .then(() => { clearForm(); fetchData(); });
   };
 
-  // Updates an item (specifically for the edit form logic)
-  const updateItem = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (editId) {
-      axios.put(`http://localhost:3000/api/fooditem/${editId}`, { name, category, quantity })
-        .then(() => { clearForm(); fetchData(); });
-    }
-  };
-
   // Saves changes made in the edit modal to the database
-  const saveEdit = () => {
+ const saveEdit = () => {
+  if (editItem) {
     axios.put(`http://localhost:3000/api/fooditem/${editItem.id}`, editItem)
       .then(() => { setEditItem(null); fetchData(); });
-  };
+  }
+};
 
   // Removes a specific item from the database
   const deleteItem = (id: number) => {
@@ -64,9 +57,10 @@ function App() {
 
   // Resets the input fields after an action
   const clearForm = () => {
-    setEditId(null); setName(''); setCategory(''); setQuantity('');
-  };
-
+  setName(''); 
+  setCategory(''); 
+  setQuantity('');
+};
   return (
     <div className="min-h-screen bg-slate-50 p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
@@ -97,7 +91,7 @@ function App() {
               <h2 className="text-lg font-bold text-slate-700 mb-4">Food List</h2>
               <input className="w-full p-3 mb-4 border border-slate-200 rounded-xl outline-none" placeholder="Search By Name..." onChange={e => handleSearch(e.target.value)} />
               <div className="overflow-x-auto w-full">
-                <table className="w-full text-left border-collapse min-w-[500px]">
+                <table className="w-full text-left border-collapse min-w-125">
                   <thead><tr className="text-slate-500 border-b border-slate-100"><th className="p-3">Name</th><th className="p-3">Category</th><th className="p-3">Quantity</th><th className="p-3">Actions</th></tr></thead>
                   <tbody>
                     {items.map((item) => (
@@ -132,20 +126,19 @@ function App() {
 
         {/* Modal shown only when an item is being edited */}
         {editItem && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white p-6 rounded-2xl max-w-sm w-full shadow-2xl">
-              <h2 className="text-xl font-bold mb-4">Edit Item</h2>
-              <input className="w-full p-3 border mb-2 rounded-xl" value={editItem.name} onChange={e => setEditItem({...editItem, name: e.target.value})} />
-              <input className="w-full p-3 border mb-2 rounded-xl" value={editItem.category} onChange={e => setEditItem({...editItem, category: e.target.value})} />
-              <input className="w-full p-3 border mb-6 rounded-xl" value={editItem.quantity} onChange={e => setEditItem({...editItem, quantity: e.target.value})} />
-              <div className="flex gap-2">
-                <button className="flex-1 bg-blue-600 text-white py-2 rounded-xl" onClick={saveEdit}>Save</button>
-                <button className="flex-1 bg-slate-200 py-2 rounded-xl" onClick={() => setEditItem(null)}>Cancel</button>
-              </div>
-            </div>
-          </div>
-        )}
-
+  <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+    <div className="bg-white p-6 rounded-2xl max-w-sm w-full shadow-2xl">
+      <h2 className="text-xl font-bold mb-4">Edit Item</h2>
+      <input className="w-full p-3 border mb-2 rounded-xl" value={editItem.name || ''} onChange={e => setEditItem({...editItem, name: e.target.value})} />
+      <input className="w-full p-3 border mb-2 rounded-xl" value={editItem.category || ''} onChange={e => setEditItem({...editItem, category: e.target.value})} />
+      <input className="w-full p-3 border mb-6 rounded-xl" value={editItem.quantity || ''} onChange={e => setEditItem({...editItem, quantity: e.target.value})} />
+      <div className="flex gap-2">
+        <button className="flex-1 bg-blue-600 text-white py-2 rounded-xl" onClick={saveEdit}>Save</button>
+        <button className="flex-1 bg-slate-200 py-2 rounded-xl" onClick={() => setEditItem(null)}>Cancel</button>
+      </div>
+    </div>
+  </div>
+)}
         {/* Modal shown only when clicking 'View' on an item */}
         {selectedItem && (
            <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
